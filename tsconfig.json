@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ESNEXT",
+    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": false
+  }
+}
