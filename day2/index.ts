@@ -22,7 +22,8 @@ const firstRoundValues: { [combination: string]: number } = {
     "C Z": 6,
 }
 
-const firstTotal = newlineSplit.reduce((sum, combination) => (firstRoundValues[combination] + Number(sum)), 0)
+let firstTotal = 0
+for (const combination of newlineSplit) firstTotal += firstRoundValues[combination]
 
 // X lose, Y draw, Z win
 
@@ -38,6 +39,7 @@ const secondRoundValues: { [combination: string]: number } = {
     "C Z": 7,
 }
 
-const secondTotal = newlineSplit.reduce((sum, combination) => (secondRoundValues[combination] + Number(sum)), 0)
+let secondTotal = 0
+for (const combination of newlineSplit) secondTotal += secondRoundValues[combination]
 
 console.log(firstTotal, secondTotal)
