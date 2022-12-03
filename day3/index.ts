@@ -4,30 +4,30 @@ import {loadInput, newLine, sum} from '../utils'
 const input = loadInput(__dirname)
 const newlineSplit = input.split(newLine)
 
-const isCharUpperCase = (point: number): boolean => point < 96
 const getPointValue = (char: string): number => {
+    // on the utf table lowercase characters have HIGHER code points than upper case 🤷‍♂️
+    const [lowerCaseSubtractor, upperCaseSubtractor] = [96, 38]
+
     const codePoint = char.charCodeAt(0)
-    const subtractor = isCharUpperCase(codePoint) ? 38 : 96
+    const subtractor =
+        codePoint < lowerCaseSubtractor
+            ? upperCaseSubtractor
+            : lowerCaseSubtractor
     return codePoint - subtractor
 }
 
-const items: string[] = []
-
-for (const line of newlineSplit) {
+const firstRoundItems: string[] = newlineSplit.map((line) => {
     const half = line.length / 2
     const [firstWord, secondWord] = [
         new Set(line.slice(0, half)),
         new Set(line.slice(half)),
     ]
     for (const char of secondWord) {
-        if (firstWord.has(char)) {
-            items.push(char)
-            break
-        }
+        if (firstWord.has(char)) return char
     }
-}
+})
 
-const total = items.map(getPointValue).reduce(sum)
+const firstRoundTotal = firstRoundItems.map(getPointValue).reduce(sum)
 
 // ----
 
@@ -35,16 +35,18 @@ const groupsOfThree: string[][] = []
 for (let i = 0; i < newlineSplit.length; i += 3)
     groupsOfThree.push(newlineSplit.slice(i, i + 3))
 
-const sortByLength = groupsOfThree.map((arr) =>
+const sortByLength: Set<string>[][] = groupsOfThree.map((arr) =>
     arr.map((s) => new Set(s)).sort((a, b) => b.size - a.size)
 )
 
-const moreItems = sortByLength.map(([firstWord, secondWord, thirdWord]) => {
-    for (const char of firstWord) {
-        if (secondWord.has(char) && thirdWord.has(char)) return char
+const secondRoundItems: string[] = sortByLength.map(
+    ([firstWord, secondWord, thirdWord]) => {
+        for (const char of firstWord) {
+            if (secondWord.has(char) && thirdWord.has(char)) return char
+        }
     }
-})
+)
 
-const secondRoundTotal = moreItems.map(getPointValue).reduce(sum)
+const secondRoundTotal = secondRoundItems.map(getPointValue).reduce(sum)
 
-console.log(total, secondRoundTotal)
+console.log(firstRoundTotal, secondRoundTotal)
