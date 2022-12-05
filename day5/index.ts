@@ -1,51 +1,55 @@
 // https://adventofcode.com/2022/day/5
-import {loadInput, newLine, blankLine} from '../utils'
+import {loadInput, newLine, blankLine, strToNum} from '../utils'
 
 const input = loadInput(__dirname)
-const [startingStacks, arrangeProcedure] = input.split(blankLine)
+const [startingStacks, procedureLines] = input.split(blankLine)
 const isNotSpace = (str: string) => str !== ' '
 
-const splitStack = startingStacks.split(newLine)
-const stackHash: {[num: string]: string[]} = {}
-const horizontalIndexes: number[] = []
+const splitStartingStacks = startingStacks.split(newLine)
 
-const finalStackString = splitStack.pop()
-for (let i = 0; i < finalStackString.length; ++i) {
-    const char = finalStackString[i]
+type CrateHash = {[num: string]: string[]}
+const [stackHash, crateIndices]: [CrateHash, number[]] = [{}, []]
+
+const lastStackLine = splitStartingStacks.pop()
+for (let i = 0; i < lastStackLine.length; ++i) {
+    const char = lastStackLine[i]
     if (isNotSpace(char)) {
         stackHash[char] = []
-        horizontalIndexes.push(i)
+        crateIndices.push(i)
     }
 }
 
-splitStack.reverse()
-for (const line of splitStack)
-    for (let i = 0; i < horizontalIndexes.length; ++i) {
-        const [stackHashKey, charToPush] = [i + 1, line[horizontalIndexes[i]]]
-        if (isNotSpace(charToPush)) stackHash[stackHashKey].push(charToPush)
+for (const line of splitStartingStacks)
+    for (let i = 0; i < crateIndices.length; ++i) {
+        const [stackHashKey, charToInsert] = [i + 1, line[crateIndices[i]]]
+        if (isNotSpace(charToInsert))
+            stackHash[stackHashKey].unshift(charToInsert)
     }
 
-const splitArrangeProcedure = arrangeProcedure.split(newLine)
+const splitProcedureLines = procedureLines.split(newLine)
 
-const strippedProcedure = splitArrangeProcedure.map((s) => {
-    const startStrippedString = s.replace('move ', '')
-    const [numberToMove, remainder] = startStrippedString.split(' from ')
-    const [startingStack, destinationStack] = remainder.split(' to ')
-
-    return [numberToMove, startingStack, destinationStack].map((s) => +s)
+const strippedProcedures = splitProcedureLines.map((s) => {
+    const cleanedString = s.replace('move ', '').replace(/ from | to /g, ',')
+    const proceduresAsNumbers = cleanedString.split(',').map(strToNum)
+    return proceduresAsNumbers
 })
 
 for (const [
     numberToMove,
     startingStack,
     destinationStack,
-] of strippedProcedure) {
-    stackHash[destinationStack].push(
-        ...stackHash[startingStack].splice(-numberToMove, numberToMove)
-    )
+] of strippedProcedures) {
+    // for (let i = 0; i < numberToMove; ++i) {
+    //     const singleCrateToMove = stackHash[startingStack].pop()
+    //     stackHash[destinationStack].push(singleCrateToMove)
+    // }
 
-    // for (let i = 0; i < numberToMove; ++i)
-    //     stackHash[destinationStack].push(stackHash[startingStack].pop())
+    const [numberToSplice, numberToDelete] = [-numberToMove, numberToMove]
+    const splicedCrates = stackHash[startingStack].splice(
+        numberToSplice,
+        numberToDelete
+    )
+    stackHash[destinationStack].push(...splicedCrates)
 }
 
 const finalString = Object.values(stackHash).reduce(
