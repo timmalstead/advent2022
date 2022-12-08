@@ -1,5 +1,5 @@
 {
-    "watch": ["."],
-    "ext": "ts",
-    "exec": "npx ts-node ./day7"
+    "watch": ["./day*"],
+    "ext": "ts, txt",
+    "exec": "npx ts-node $(find ./day* -name 'index.ts' -print0 | xargs -0 ls -tlr | tail -1 | awk 'NF{ print $NF }')"
 }
