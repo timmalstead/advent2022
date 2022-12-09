@@ -1,5 +1,5 @@
 {
     "watch": ["./day*"],
     "ext": "ts, txt",
-    "exec": "npx ts-node $(find ./day* -name 'index.ts' -print0 | xargs -0 ls -tlr | tail -1 | awk 'NF{ print $NF }')"
+    "exec": "MOST_RECENTLY_MODIFIED_TS_FILE=$(find ./day* -name 'index.ts' -print0 | xargs -0 ls -tlr | tail -1 | awk 'NF{ print $NF }') && npx ts-node $MOST_RECENTLY_MODIFIED_TS_FILE"
 }

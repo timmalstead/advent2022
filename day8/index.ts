@@ -1,5 +1,5 @@
 // https://adventofcode.com/2022/day/8
-import {loadInput, newLine, strToNum} from '../utils'
+import {loadInput, newLine, strToNum, product} from '../utils'
 const input = loadInput(__dirname).split(newLine)
 
 // 0 - lowest, 9 highest
@@ -62,4 +62,79 @@ for (let y = 0; y < length; ++y) {
         }
 }
 
+const findNumberOfVisibleTrees = (
+    treeToCheck: number,
+    treesInLine: string,
+    reverse?: boolean
+) => {
+    let visibleTrees = 0
+
+    if (treesInLine) {
+        const splitTrees = treesInLine.split('').map(strToNum)
+
+        reverse && splitTrees.reverse()
+
+        while (splitTrees.length) {
+            const currentTree = splitTrees.pop()
+
+            if (treeToCheck <= currentTree) {
+                ++visibleTrees
+                splitTrees.length = 0
+            } else if (treeToCheck > currentTree) ++visibleTrees
+            else splitTrees.length = 0
+        }
+    }
+    return visibleTrees
+}
+
+let highestScenicScore = 0
+for (let y = 0; y < length; ++y) {
+    if (!topAndBottom.has(y))
+        for (let x = 0; x < width; ++x)
+            if (!leftAndRight.has(x)) {
+                const currentTree = +input[y][x]
+                const widthLine = input[y]
+
+                const visibilityArray: number[] = []
+
+                const sliceToLeft = widthLine.slice(0, x)
+                const numberVisibleFromLeft = findNumberOfVisibleTrees(
+                    currentTree,
+                    sliceToLeft
+                )
+                visibilityArray.push(numberVisibleFromLeft)
+
+                const sliceToRight = widthLine.slice(x + 1)
+                const numberVisibleFromRight = findNumberOfVisibleTrees(
+                    currentTree,
+                    sliceToRight,
+                    true
+                )
+                visibilityArray.push(numberVisibleFromRight)
+
+                let sliceToTop = ''
+                for (let i = 0; i < y; ++i) sliceToTop += input[i][x]
+                const numberVisibleFromTop = findNumberOfVisibleTrees(
+                    currentTree,
+                    sliceToTop
+                )
+                visibilityArray.push(numberVisibleFromTop)
+
+                let sliceToBottom = ''
+                for (let i = y + 1; i < length; ++i)
+                    sliceToBottom += input[i][x]
+                const numberVisibleFromBottom = findNumberOfVisibleTrees(
+                    currentTree,
+                    sliceToBottom,
+                    true
+                )
+                visibilityArray.push(numberVisibleFromBottom)
+
+                const finalScenicScore = visibilityArray.reduce(product)
+                if (finalScenicScore > highestScenicScore)
+                    highestScenicScore = finalScenicScore
+            }
+}
+
 console.log(visibleTrees)
+console.log(highestScenicScore)
